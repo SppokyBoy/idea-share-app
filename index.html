@@ -15,6 +15,9 @@
       --text-secondary: #4b5563;
       --accent: #ec4899;
       --shadow-color: rgba(79, 70, 229, 0.3);
+      --button-bg: var(--accent);
+      --button-bg-hover: #db2777;
+      --button-shadow: rgba(236, 72, 153, 0.4);
     }
     * {
       box-sizing: border-box;
@@ -37,7 +40,7 @@
       letter-spacing: 0.05em;
     }
     button {
-      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      background: var(--button-bg);
       border: none;
       color: white;
       padding: 0.6rem 1.3rem;
@@ -45,7 +48,7 @@
       font-weight: 600;
       border-radius: 8px;
       cursor: pointer;
-      box-shadow: 0 6px 12px var(--shadow-color);
+      box-shadow: 0 6px 12px var(--button-shadow);
       user-select: none;
       outline-offset: 4px;
       outline-color: transparent;
@@ -59,14 +62,14 @@
       margin: 0.5rem 0;
     }
     button:hover {
-      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-      box-shadow: 0 8px 20px var(--shadow-color);
+      background: var(--button-bg-hover);
+      box-shadow: 0 8px 20px var(--button-shadow);
       outline-color: var(--accent);
       transform: translateY(-2px);
     }
     button:active {
       transform: translateY(1px);
-      box-shadow: 0 4px 10px var(--shadow-color);
+      box-shadow: 0 4px 10px var(--button-shadow);
     }
     input, textarea {
       width: 100%;
@@ -101,6 +104,7 @@
       gap: 1.2rem;
     }
     .card {
+      position: relative;
       background: var(--card-bg);
       padding: 1.2rem 1.6rem;
       border-radius: 12px;
@@ -144,30 +148,55 @@
       font-weight: 500;
       font-size: 1rem;
       user-select: text;
+      white-space: pre-wrap;
     }
-    .likeBtn {
-      margin-bottom: 1rem;
-      background: var(--accent);
-      box-shadow: 0 5px 12px rgba(236, 72, 153, 0.4);
+    .reactBtn {
+      margin-bottom: 0.7rem;
       font-weight: 700;
       font-size: 1.1rem;
       padding: 0.5rem 1.1rem;
       border-radius: 24px;
-      transition:
-        background 0.3s ease,
-        box-shadow 0.3s ease,
-        transform 0.15s ease;
       color: white;
       user-select: none;
+      cursor: pointer;
+      position: relative;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
-    .likeBtn:hover {
-      background: #db2777;
-      box-shadow: 0 8px 22px rgba(219, 39, 119, 0.6);
-      transform: translateY(-2px);
+    .reactionMenu {
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      display: none;
+      gap: 8px;
+      padding: 0.3rem 0.6rem;
+      border-radius: 30px;
+      background: var(--card-bg);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      user-select: none;
+      z-index: 1000;
+      white-space: nowrap;
     }
-    .likeBtn:active {
-      transform: translateY(1px);
-      box-shadow: 0 4px 12px rgba(219, 39, 119, 0.4);
+    .reactionMenu button {
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0 6px;
+      transition: transform 0.15s ease;
+      color: var(--text-primary);
+    }
+    .reactionMenu button:hover {
+      transform: scale(1.3);
+    }
+    .reactionsDisplay {
+      margin-top: 6px;
+      font-size: 1.3rem;
+      user-select: none;
+      color: var(--accent);
+      min-height: 1.6rem;
     }
     .comments {
       margin-top: 1rem;
@@ -192,15 +221,23 @@
       border-radius: 50%;
       box-shadow: 0 0 3px var(--primary-light);
     }
+    .comment-text {
+      word-break: break-word;
+    }
+    .commentInputContainer {
+      margin-top: 0.8rem;
+      display: flex;
+      gap: 0.6rem;
+    }
     .commentInput {
-      width: calc(100% - 110px);
+      flex: 1;
       padding: 0.45rem 0.75rem;
       border-radius: 6px;
       border: 1.8px solid #d1d5db;
       font-size: 0.95rem;
       font-weight: 500;
-      margin-right: 0.6rem;
       transition: border-color 0.3s ease;
+      font-family: inherit;
     }
     .commentInput:focus {
       outline: none;
@@ -208,45 +245,61 @@
       box-shadow: 0 0 5px var(--primary-light);
     }
     .commentBtn {
-      background: var(--primary);
       border-radius: 6px;
       padding: 0.48rem 1rem;
       font-weight: 700;
       font-size: 0.95rem;
-      color: white;
-      box-shadow: 0 5px 12px rgba(79, 70, 229, 0.35);
       cursor: pointer;
+      user-select: none;
+      border: none;
+      color: white;
+      background: var(--button-bg);
+      box-shadow: 0 5px 12px var(--button-shadow);
       transition:
         background 0.3s ease,
         box-shadow 0.3s ease,
         transform 0.15s ease;
-      user-select: none;
-      border: none;
     }
     .commentBtn:hover {
-      background: var(--primary-dark);
-      box-shadow: 0 8px 22px rgba(67, 56, 202, 0.6);
+      background: var(--button-bg-hover);
+      box-shadow: 0 8px 22px var(--button-shadow);
       transform: translateY(-2px);
     }
     .commentBtn:active {
       transform: translateY(1px);
-      box-shadow: 0 4px 12px rgba(67, 56, 202, 0.4);
-    }
-    .card > input.commentInput,
-    .card > button.commentBtn {
-      vertical-align: middle;
-    }
-    .card > input.commentInput {
-      display: inline-block;
-    }
-    .card > button.commentBtn {
-      display: inline-block;
+      box-shadow: 0 4px 12px var(--button-shadow);
     }
     #authButtons {
       display: flex;
       justify-content: center;
       gap: 1rem;
       margin-bottom: 2rem;
+    }
+    #customization {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    #customization label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.9rem;
+      user-select: none;
+      cursor: pointer;
+    }
+    #customization input[type="color"] {
+      margin-top: 0.3rem;
+      width: 40px;
+      height: 30px;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
     }
     @keyframes fadeIn {
       from {opacity: 0; transform: translateY(10px);}
@@ -267,6 +320,11 @@
     <button id="signOutBtn" style="display:none;">Sign Out</button>
   </div>
 
+  <div id="customization">
+    <label>Background Color: <input type="color" id="bgColorPicker" value="#f9fafb"></label>
+    <label>Button Color: <input type="color" id="btnColorPicker" value="#ec4899"></label>
+  </div>
+
   <div id="ideaForm" style="display:none;">
     <input id="ideaTitle" placeholder="Idea Title" />
     <textarea id="ideaDesc" rows="4" placeholder="Describe your idea in markdown..."></textarea>
@@ -277,7 +335,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -304,6 +362,49 @@
     const signInBtn = document.getElementById("signInBtn");
     const signOutBtn = document.getElementById("signOutBtn");
     const ideaForm = document.getElementById("ideaForm");
+
+    const bgColorPicker = document.getElementById("bgColorPicker");
+    const btnColorPicker = document.getElementById("btnColorPicker");
+
+    // Handle customization inputs
+    bgColorPicker.addEventListener("input", e => {
+      document.body.style.backgroundColor = e.target.value;
+    });
+    btnColorPicker.addEventListener("input", e => {
+      const val = e.target.value;
+      document.documentElement.style.setProperty("--accent", val);
+      document.documentElement.style.setProperty("--button-bg", val);
+      // Calculate hover shade by darkening (simple approx)
+      document.documentElement.style.setProperty("--button-bg-hover", shadeColor(val, -20));
+      document.documentElement.style.setProperty("--button-shadow", hexToRgba(val, 0.4));
+    });
+
+    function shadeColor(color, percent) {
+      // color: hex string, percent: -100 to 100
+      let R = parseInt(color.substring(1,3),16);
+      let G = parseInt(color.substring(3,5),16);
+      let B = parseInt(color.substring(5,7),16);
+
+      R = parseInt(R * (100 + percent) / 100);
+      G = parseInt(G * (100 + percent) / 100);
+      B = parseInt(B * (100 + percent) / 100);
+
+      R = (R<255)?R:255;
+      G = (G<255)?G:255;
+      B = (B<255)?B:255;
+
+      const RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
+      const GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
+      const BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
+
+      return "#"+RR+GG+BB;
+    }
+    function hexToRgba(hex, alpha) {
+      let r = parseInt(hex.slice(1,3),16);
+      let g = parseInt(hex.slice(3,5),16);
+      let b = parseInt(hex.slice(5,7),16);
+      return `rgba(${r},${g},${b},${alpha})`;
+    }
 
     signInBtn.onclick = async () => {
       try {
@@ -351,9 +452,8 @@
           author: auth.currentUser.displayName,
           avatar: auth.currentUser.photoURL,
           uid: auth.currentUser.uid,
-          likes: 0,
-          likedBy: [],
-          comments: [],
+          reactions: {}, // store reactions as {like: [], love: [], ...}
+          comments: [],  // store comments as array of {author, avatar, text, uid, created}
           created: new Date()
         });
         ideaTitle.value = "";
@@ -366,144 +466,259 @@
 
     const renderedIdeas = new Map();
 
-    const qIdeas = query(collection(db, "ideas"), orderBy("created", "desc"));
-
-    onSnapshot(qIdeas, (snapshot) => {
-      renderedIdeas.clear();
-      ideasList.innerHTML = '';
-
-      snapshot.docs.forEach(docSnap => {
-        const id = docSnap.id;
-        const idea = docSnap.data();
-        const card = createIdeaCard(id, idea);
-        ideasList.appendChild(card);
-        renderedIdeas.set(id, card);
+    // Fetch and listen for ideas
+    const ideasQuery = query(collection(db, "ideas"), orderBy("created", "desc"));
+    onSnapshot(ideasQuery, (snapshot) => {
+      snapshot.docChanges().forEach(change => {
+        if (change.type === "added") {
+          renderIdea(change.doc);
+        }
+        if (change.type === "modified") {
+          updateIdea(change.doc);
+        }
+        if (change.type === "removed") {
+          removeIdea(change.doc.id);
+        }
       });
-
-      window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
-    // Helper function to format relative time
-    function timeAgo(date) {
-      const now = new Date();
-      const seconds = Math.floor((now - date) / 1000);
-
-      if (seconds < 10) return "Just now";
-      if (seconds < 60) return `${seconds} seconds ago`;
-
-      const intervals = [
-        { label: "year", seconds: 31536000 },
-        { label: "month", seconds: 2592000 },
-        { label: "day", seconds: 86400 },
-        { label: "hour", seconds: 3600 },
-        { label: "minute", seconds: 60 }
-      ];
-
-      for (const interval of intervals) {
-        const count = Math.floor(seconds / interval.seconds);
-        if (count >= 1) {
-          return count === 1
-            ? `1 ${interval.label} ago`
-            : `${count} ${interval.label}s ago`;
-        }
-      }
-      return "Just now";
+    // Escape to prevent XSS
+    function escapeHTML(text) {
+      return text.replace(/[&<>"']/g, (m) => {
+        return {'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[m];
+      });
     }
 
-    function createIdeaCard(id, idea) {
+    // Reaction emojis & keys
+    const reactionEmojis = {
+      like: "❤️",
+      love: "😍",
+      laugh: "😂",
+      surprise: "😮",
+      sad: "😢",
+      angry: "😡",
+    };
+    const reactionKeys = Object.keys(reactionEmojis);
+
+    function renderIdea(doc) {
+      if (renderedIdeas.has(doc.id)) return;
+      const data = doc.data();
+
       const card = document.createElement("div");
       card.className = "card";
-      updateIdeaCard(card, idea, id);
-      return card;
-    }
+      card.id = `idea-${doc.id}`;
 
-    function updateIdeaCard(card, idea, id) {
-      const userId = auth.currentUser?.uid || "";
-      const likedBy = idea.likedBy || [];
-      const liked = likedBy.includes(userId);
-
-      // Convert Firestore timestamp or Date object to JS Date
-      const createdDate = idea.created?.toDate ? idea.created.toDate() : new Date(idea.created);
-      const postedTime = timeAgo(createdDate);
+      const postedTime = data.created?.toDate ? data.created.toDate() : new Date();
+      const timeStr = postedTime.toLocaleString();
 
       card.innerHTML = `
-        <h3>${idea.title}</h3>
-        <div class="posted-time">Posted ${postedTime}</div>
+        <h3>${escapeHTML(data.title)}</h3>
+        <div class="posted-time">Posted on ${timeStr}</div>
         <div class="author">
-          <img src="${idea.avatar}" alt="avatar" onerror="this.src='https://via.placeholder.com/28?text=?'">
-          <strong>${idea.author}</strong>
+          <img src="${escapeHTML(data.avatar)}" alt="avatar" />
+          <span>${escapeHTML(data.author)}</span>
         </div>
-        <div class="markdown-body">${marked ? marked.parse(idea.description) : idea.description}</div>
-        <button class="likeBtn">${liked ? "💔 Unlike" : "❤️ Like"} ${idea.likes || 0}</button>
+        <div class="markdown-body">${escapeHTML(data.description)}</div>
+        <button class="reactBtn">React 👍</button>
+        <div class="reactionMenu"></div>
+        <div class="reactionsDisplay"></div>
+
+        <!-- Comments -->
         <div class="comments"></div>
-        <input class="commentInput" placeholder="Write a comment">
-        <button class="commentBtn">Post Comment</button>
+        <div class="commentInputContainer">
+          <input type="text" class="commentInput" placeholder="Write a comment..." />
+          <button class="commentBtn">Post</button>
+        </div>
       `;
 
-      card.querySelector(".likeBtn").onclick = async () => {
-        if (!userId) {
-          alert("You must be signed in to like.");
-          return;
-        }
-        const ideaRef = doc(db, "ideas", id);
+      ideasList.appendChild(card);
+      renderedIdeas.set(doc.id, card);
 
-        let newLikedBy;
-        let newLikes;
+      setupReactions(doc.id, card, data);
+      setupComments(doc.id, card, data);
+    }
 
-        if (liked) {
-          newLikedBy = likedBy.filter(uid => uid !== userId);
-          newLikes = (idea.likes || 1) - 1;
-        } else {
-          newLikedBy = [...likedBy, userId];
-          newLikes = (idea.likes || 0) + 1;
-        }
+    function updateIdea(doc) {
+      const data = doc.data();
+      const card = renderedIdeas.get(doc.id);
+      if (!card) return;
 
-        try {
-          await updateDoc(ideaRef, {
-            likedBy: newLikedBy,
-            likes: newLikes
+      card.querySelector("h3").textContent = data.title;
+      const postedTime = data.created?.toDate ? data.created.toDate() : new Date();
+      card.querySelector(".posted-time").textContent = `Posted on ${postedTime.toLocaleString()}`;
+      card.querySelector(".author span").textContent = data.author;
+      card.querySelector(".author img").src = data.avatar;
+      card.querySelector(".markdown-body").textContent = data.description;
+
+      updateReactionsDisplay(doc.id, data, card);
+      updateCommentsDisplay(doc.id, data, card);
+    }
+
+    function removeIdea(id) {
+      const card = renderedIdeas.get(id);
+      if (card) {
+        card.remove();
+        renderedIdeas.delete(id);
+      }
+    }
+
+    function setupReactions(docId, card, data) {
+      const reactBtn = card.querySelector(".reactBtn");
+      const reactionMenu = card.querySelector(".reactionMenu");
+      const reactionsDisplay = card.querySelector(".reactionsDisplay");
+
+      // Clear old buttons
+      reactionMenu.innerHTML = "";
+
+      // Create reaction buttons
+      reactionKeys.forEach(key => {
+        const btn = document.createElement("button");
+        btn.title = key;
+        btn.textContent = reactionEmojis[key];
+        reactionMenu.appendChild(btn);
+
+        btn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          if (!auth.currentUser) {
+            alert("Please sign in to react.");
+            return;
+          }
+          const uid = auth.currentUser.uid;
+          const ideaRef = doc(db, "ideas", docId);
+
+          const updates = {};
+          reactionKeys.forEach(r => {
+            if (r === key) {
+              updates[`reactions.${r}`] = arrayUnion(uid);
+            } else {
+              updates[`reactions.${r}`] = arrayRemove(uid);
+            }
           });
-        } catch (err) {
-          console.error("Error updating likes:", err);
+
+          try {
+            await updateDoc(ideaRef, updates);
+            reactBtn.textContent = reactionEmojis[key];
+            reactionMenu.style.display = "none";
+          } catch (err) {
+            alert("Failed to update reaction: " + err.message);
+          }
+        });
+      });
+
+      reactBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (reactionMenu.style.display === "flex") {
+          reactionMenu.style.display = "none";
+        } else {
+          document.querySelectorAll(".reactionMenu").forEach(menu => menu.style.display = "none");
+          reactionMenu.style.display = "flex";
+          reactionMenu.style.position = "absolute";
         }
       };
 
-      const commentsEl = card.querySelector(".comments");
-      commentsEl.innerHTML = "";
-      (idea.comments || []).forEach(c => {
-        commentsEl.innerHTML += `<div class="comment"><img src="${c.avatar}" alt="avatar" onerror="this.src='https://via.placeholder.com/22?text=?'"> ${c.text} — <strong>${c.author}</strong></div>`;
+      document.body.addEventListener("click", () => {
+        reactionMenu.style.display = "none";
       });
 
-      card.querySelector(".commentBtn").onclick = async () => {
-        if (!userId) {
-          alert("You must be signed in to comment.");
+      updateReactionsDisplay(docId, data, card);
+    }
+
+    function updateReactionsDisplay(docId, data, card) {
+      const reactionsDisplay = card.querySelector(".reactionsDisplay");
+      const reactBtn = card.querySelector(".reactBtn");
+
+      if (!data.reactions) {
+        reactionsDisplay.textContent = "";
+        reactBtn.textContent = "React 👍";
+        return;
+      }
+
+      let userReaction = null;
+      const uid = auth.currentUser ? auth.currentUser.uid : null;
+      for (const [key, users] of Object.entries(data.reactions)) {
+        if (users && uid && users.includes(uid)) {
+          userReaction = key;
+          break;
+        }
+      }
+
+      reactBtn.textContent = userReaction ? reactionEmojis[userReaction] : "React 👍";
+
+      let reactionSummary = "";
+      for (const key of reactionKeys) {
+        const users = data.reactions[key];
+        if (users && users.length > 0) {
+          reactionSummary += `${reactionEmojis[key]} ${users.length}  `;
+        }
+      }
+      reactionsDisplay.textContent = reactionSummary.trim();
+    }
+
+    // Comments setup
+    function setupComments(docId, card, data) {
+      const commentsDiv = card.querySelector(".comments");
+      const commentInput = card.querySelector(".commentInput");
+      const commentBtn = card.querySelector(".commentBtn");
+
+      commentBtn.onclick = async () => {
+        if (!auth.currentUser) {
+          alert("Please sign in to comment.");
           return;
         }
-        const commentInput = card.querySelector(".commentInput");
         const text = commentInput.value.trim();
-        if (!text) return;
+        if (!text) {
+          alert("Comment cannot be empty.");
+          return;
+        }
+        const ideaRef = doc(db, "ideas", docId);
+        const newComment = {
+          author: auth.currentUser.displayName,
+          avatar: auth.currentUser.photoURL,
+          text,
+          uid: auth.currentUser.uid,
+          created: new Date()
+        };
 
-        const ideaRef = doc(db, "ideas", id);
         try {
           await updateDoc(ideaRef, {
-            comments: arrayUnion({
-              text,
-              author: auth.currentUser.displayName,
-              avatar: auth.currentUser.photoURL,
-              uid: userId,
-              created: new Date()
-            })
+            comments: arrayUnion(newComment)
           });
           commentInput.value = "";
         } catch (err) {
-          console.error("Error posting comment:", err);
+          alert("Failed to post comment: " + err.message);
         }
       };
+
+      updateCommentsDisplay(docId, data, card);
     }
+
+    function updateCommentsDisplay(docId, data, card) {
+      const commentsDiv = card.querySelector(".comments");
+      if (!data.comments || data.comments.length === 0) {
+        commentsDiv.innerHTML = `<em>No comments yet.</em>`;
+        return;
+      }
+
+      // Sort comments by created time ascending
+      const sortedComments = [...data.comments].sort((a,b) => {
+        const aTime = a.created?.seconds ? a.created.seconds : (a.created ? new Date(a.created).getTime()/1000 : 0);
+        const bTime = b.created?.seconds ? b.created.seconds : (b.created ? new Date(b.created).getTime()/1000 : 0);
+        return aTime - bTime;
+      });
+
+      commentsDiv.innerHTML = "";
+
+      sortedComments.forEach(c => {
+        const comment = document.createElement("div");
+        comment.className = "comment";
+        comment.innerHTML = `
+          <img src="${escapeHTML(c.avatar)}" alt="avatar" />
+          <div class="comment-text"><strong>${escapeHTML(c.author)}:</strong> ${escapeHTML(c.text)}</div>
+        `;
+        commentsDiv.appendChild(comment);
+      });
+    }
+
   </script>
-
-  <!-- Markdown parser CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
 </body>
 </html>
