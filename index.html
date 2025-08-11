@@ -368,42 +368,19 @@
 
     const qIdeas = query(collection(db, "ideas"), orderBy("created", "desc"));
 
-    let scrollTimeout;
-
     onSnapshot(qIdeas, (snapshot) => {
-      let newAdded = false;
+      renderedIdeas.clear();
+      ideasList.innerHTML = '';
 
-      snapshot.docChanges().forEach((change) => {
-        const id = change.doc.id;
-        const idea = change.doc.data();
-
-        if (change.type === "added") {
-          if (!renderedIdeas.has(id)) {
-            const card = createIdeaCard(id, idea);
-            ideasList.insertBefore(card, ideasList.firstChild); // Newest on top
-            renderedIdeas.set(id, card);
-            newAdded = true;
-          }
-        } else if (change.type === "modified") {
-          const card = renderedIdeas.get(id);
-          if (card) {
-            updateIdeaCard(card, idea, id);
-          }
-        } else if (change.type === "removed") {
-          const card = renderedIdeas.get(id);
-          if (card) {
-            card.remove();
-            renderedIdeas.delete(id);
-          }
-        }
+      snapshot.docs.forEach(docSnap => {
+        const id = docSnap.id;
+        const idea = docSnap.data();
+        const card = createIdeaCard(id, idea);
+        ideasList.appendChild(card);
+        renderedIdeas.set(id, card);
       });
 
-      if (newAdded) {
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }, 100);
-      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
     // Helper function to format relative time
@@ -453,7 +430,7 @@
         <h3>${idea.title}</h3>
         <div class="posted-time">Posted ${postedTime}</div>
         <div class="author">
-          <img src="${idea.avatar}" alt="avatar">
+          <img src="${idea.avatar}" alt="avatar" onerror="this.src='https://via.placeholder.com/28?text=?'">
           <strong>${idea.author}</strong>
         </div>
         <div class="markdown-body">${marked ? marked.parse(idea.description) : idea.description}</div>
@@ -493,8 +470,8 @@
 
       const commentsEl = card.querySelector(".comments");
       commentsEl.innerHTML = "";
-      idea.comments.forEach(c => {
-        commentsEl.innerHTML += `<div class="comment"><img src="${c.avatar}" alt="avatar"> ${c.text} — <strong>${c.author}</strong></div>`;
+      (idea.comments || []).forEach(c => {
+        commentsEl.innerHTML += `<div class="comment"><img src="${c.avatar}" alt="avatar" onerror="this.src='https://via.placeholder.com/22?text=?'"> ${c.text} — <strong>${c.author}</strong></div>`;
       });
 
       card.querySelector(".commentBtn").onclick = async () => {
