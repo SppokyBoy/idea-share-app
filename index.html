@@ -22,6 +22,8 @@
 
 * { box-sizing: border-box; transition: background-color .3s ease, color .3s ease; }
 body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 650px; margin: 2rem auto; padding: 1rem 1.5rem; background: var(--background); color: var(--text-primary); }
+#topBar { position:fixed; top:12px; right:16px; display:none; align-items:center; gap:.6rem; z-index:1500; background:linear-gradient(135deg, var(--card-bg) 0%, rgba(255,255,255,0.95) 100%); padding:.5rem .75rem; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.12); border:1px solid rgba(79,70,229,.15); }
+#topBar label { font-weight:600; color:var(--text-secondary); font-size:.9rem; }
 h1 { text-align:center; margin-bottom:1rem; color:var(--button-bg); font-weight:700; font-size:2.4rem; letter-spacing:.05em; user-select:none; cursor:default; text-shadow:0 2px 6px var(--button-shadow); }
 
 #adminPanel { display:none; margin:1rem 0 1.5rem 0; padding:.9rem 1rem; border-radius:12px; background:#eef2ff; border:2px dashed var(--primary-dark); box-shadow:0 6px 16px rgba(0,0,0,.06); }
@@ -80,6 +82,18 @@ input:focus, textarea:focus { border-color: var(--primary); outline:none; box-sh
 #closeProfile:hover { background:#f3f4f6; }
 .profile-header { display:flex; gap:1.5rem; margin-bottom:1.5rem; align-items:flex-start; }
 .profile-avatar-large { width:80px; height:80px; border-radius:50%; box-shadow:0 4px 12px rgba(0,0,0,0.15); object-fit:cover; flex-shrink:0; }
+.avatar-frame { box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--primary); }
+.avatar-frame-gold { box-shadow: 0 0 0 3px #fff, 0 0 0 5px #f59e0b; }
+.avatar-frame-rainbow { position:relative; }
+.avatar-frame-rainbow::after { content:""; position:absolute; inset:-4px; border-radius:50%; padding:4px; background:conic-gradient(#f87171,#fbbf24,#34d399,#60a5fa,#a78bfa,#f472b6,#f87171); -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+/* Extra fun frames */
+.avatar-frame-neon { box-shadow: 0 0 0 3px #fff, 0 0 12px 4px #22d3ee, 0 0 0 5px #06b6d4; }
+.avatar-frame-dotted { outline: 4px dotted #8b5cf6; outline-offset: 2px; }
+.avatar-frame-gradient { position:relative; }
+.avatar-frame-gradient::after { content:""; position:absolute; inset:-5px; border-radius:50%; padding:5px; background:conic-gradient(#06b6d4,#22c55e,#f59e0b,#ef4444,#06b6d4); -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.avatar-frame-blue { box-shadow: 0 0 0 3px #fff, 0 0 0 5px #3b82f6; }
+.avatar-frame-pink { box-shadow: 0 0 0 3px #fff, 0 0 0 5px #ec4899; }
+.avatar-frame-glowpurple { box-shadow: 0 0 0 3px #fff, 0 0 14px 6px #a78bfa, 0 0 0 5px #8b5cf6; }
 .profile-info { flex:1; min-width:0; }
 .profile-name { font-size:1.5rem; font-weight:700; margin-bottom:.5rem; color:var(--text-primary); display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
 .profile-bio { color:var(--text-secondary); line-height:1.6; margin-bottom:1rem; white-space:pre-wrap; word-wrap:break-word; }
@@ -204,18 +218,22 @@ input:focus, textarea:focus { border-color: var(--primary); outline:none; box-sh
 
 <div id="authButtons">
   <button id="signInBtn">Sign In with Google</button>
-  <button id="signOutBtn" style="display:none;">Sign Out</button>
 </div>
+
+<div id="topBar">
+  <label>Background Color <input type="color" id="bgColorPicker" value="#f9fafb"></label>
+  <label>Button Color <input type="color" id="btnColorPicker" value="#4f46e5"></label>
+  <button id="signOutBtn">Sign Out</button>
+  </div>
 
 <div id="navBar" style="display:none;">
   <button class="nav-link active" id="navIdeas">Ideas</button>
   <button class="nav-link" id="navProfile">My Profile</button>
+  <button class="nav-link" id="navSaved" style="display:none;">Saved</button>
+  <button class="nav-link" id="navLeaderboard">Leaderboard</button>
 </div>
 
- <div id="customization">
-   <label>Background Color: <input type="color" id="bgColorPicker" value="#f9fafb"></label>
-   <label>Button Color: <input type="color" id="btnColorPicker" value="#4f46e5"></label>
- </div>
+ <div id="customization" style="display:none;"></div>
 
 <div id="ideaForm" style="display:none;">
   <input id="ideaTitle" placeholder="Idea Title" />
@@ -265,6 +283,12 @@ input:focus, textarea:focus { border-color: var(--primary); outline:none; box-sh
     </div>
     <div id="profileEdit" style="display:none;">
       <h3>Edit Profile</h3>
+      <label>Display Name:</label>
+      <input id="profileDisplayNameEdit" placeholder="Your display name" />
+      <!-- Removed manual photo upload; using preset avatars instead -->
+      <div id="presetAvatarPicker" style="margin:.5rem 0; display:grid; grid-template-columns: repeat(6, 1fr); gap:.5rem;"></div>
+      <label>Frame:</label>
+      <div id="presetFramePicker" style="margin:.5rem 0; display:flex; gap:.5rem; flex-wrap:wrap;"></div>
       <label>Bio:</label>
       <textarea id="profileBioEdit" placeholder="Tell us about yourself..." style="min-height:80px;"></textarea>
       <button id="saveProfileBtn">Save Profile</button>
@@ -295,7 +319,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyAu2x0HdXxGiLv1Rhjqwv4Lkp2Wooo13L0",
   authDomain: "theideaapp-2ff99.firebaseapp.com",
   projectId: "theideaapp-2ff99",
-  storageBucket: "theideaapp-2ff99.firebasestorage.app",
+  storageBucket: "theideaapp-2ff99.appspot.com",
   messagingSenderId: "964418361365",
   appId: "1:964418361365:web:44fd66314e75b4181e561c",
   measurementId: "G-FJQ0228EZK"
@@ -306,6 +330,25 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: 'select_account' });
+
+// Avatar helpers
+function getAvatarSrcFromProfile(p){
+  return (p?.avatarPreset) || (p?.photoURL) || "https://www.gravatar.com/avatar?d=mp&f=y";
+}
+function applyFrameClass(el, p){
+  if (!el) return;
+  el.classList.remove("avatar-frame","avatar-frame-gold","avatar-frame-rainbow","avatar-frame-neon","avatar-frame-dotted","avatar-frame-gradient","avatar-frame-blue","avatar-frame-pink","avatar-frame-glowpurple");
+  const f = p?.framePreset;
+  if (f === "default") el.classList.add("avatar-frame");
+  if (f === "gold") el.classList.add("avatar-frame-gold");
+  if (f === "rainbow") el.classList.add("avatar-frame-rainbow");
+  if (f === "neon") el.classList.add("avatar-frame-neon");
+  if (f === "dotted") el.classList.add("avatar-frame-dotted");
+  if (f === "gradient") el.classList.add("avatar-frame-gradient");
+  if (f === "blue") el.classList.add("avatar-frame-blue");
+  if (f === "pink") el.classList.add("avatar-frame-pink");
+  if (f === "glowpurple") el.classList.add("avatar-frame-glowpurple");
+}
 
 const ADMIN_UID = "x7GUnYJAeGg4qx68iZfT0Ns46EC3";
 let isAdmin = false;
@@ -322,6 +365,7 @@ const ideaTitle = document.getElementById("ideaTitle");
 const ideaDesc = document.getElementById("ideaDesc");
 const signInBtn = document.getElementById("signInBtn");
 const signOutBtn = document.getElementById("signOutBtn");
+const topBar = document.getElementById("topBar");
 const ideaForm = document.getElementById("ideaForm");
 const bgColorPicker = document.getElementById("bgColorPicker");
 const btnColorPicker = document.getElementById("btnColorPicker");
@@ -330,8 +374,48 @@ const closeProfile = document.getElementById("closeProfile");
 const navBar = document.getElementById("navBar");
 const navIdeas = document.getElementById("navIdeas");
 const navProfile = document.getElementById("navProfile");
+const navSaved = document.getElementById("navSaved");
+const navLeaderboard = document.getElementById("navLeaderboard");
 const profileEdit = document.getElementById("profileEdit");
 const profileBioEdit = document.getElementById("profileBioEdit");
+const profileDisplayNameEdit = document.getElementById("profileDisplayNameEdit");
+const presetAvatarPicker = document.getElementById("presetAvatarPicker");
+const presetFramePicker = document.getElementById("presetFramePicker");
+
+// Preset avatars and frames
+const PRESET_AVATARS = [
+  // Bottts (robots)
+  "https://api.dicebear.com/7.x/bottts/svg?seed=PixelPirate",
+  "https://api.dicebear.com/7.x/bottts/svg?seed=NeonNinja",
+  "https://api.dicebear.com/7.x/bottts/svg?seed=CyberCat",
+  "https://api.dicebear.com/7.x/bottts/svg?seed=GalaxyGoose",
+  "https://api.dicebear.com/7.x/bottts/svg?seed=SplendidShark",
+  // Adventurer (cartoon people)
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=SkyWalker",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=StarBlossom",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=MoonRider",
+  // Thumbs (hands)
+  "https://api.dicebear.com/7.x/thumbs/svg?seed=ThumbsUp",
+  "https://api.dicebear.com/7.x/thumbs/svg?seed=Victory",
+  // Fun Emoji
+  "https://api.dicebear.com/7.x/fun-emoji/svg?seed=Sunshine",
+  "https://api.dicebear.com/7.x/fun-emoji/svg?seed=Sparkle"
+];
+const PRESET_FRAMES = [
+  { key: "none", label: "None", className: "" },
+  { key: "default", label: "Primary", className: "avatar-frame" },
+  { key: "gold", label: "Gold", className: "avatar-frame-gold" },
+  { key: "rainbow", label: "Rainbow", className: "avatar-frame-rainbow" },
+  { key: "neon", label: "Neon", className: "avatar-frame-neon" },
+  { key: "dotted", label: "Dotted", className: "avatar-frame-dotted" },
+  { key: "gradient", label: "Gradient", className: "avatar-frame-gradient" },
+  { key: "blue", label: "Blue", className: "avatar-frame-blue" },
+  { key: "pink", label: "Pink", className: "avatar-frame-pink" },
+  { key: "glowpurple", label: "Glow Purple", className: "avatar-frame-glowpurple" }
+];
+
+let selectedAvatarPreset = null;
+let selectedFramePreset = null;
 const saveProfileBtn = document.getElementById("saveProfileBtn");
 const cancelEditBtn = document.getElementById("cancelEditBtn");
 const followersModal = document.getElementById("followersModal");
@@ -341,18 +425,24 @@ const followersModalTitle = document.getElementById("followersModalTitle");
 const followersStat = document.getElementById("followersStat");
 const followingStat = document.getElementById("followingStat");
 
- // ---------------- Customization ----------------
- // Load saved colors from localStorage on page load
- const savedBgColor = localStorage.getItem("ideaApp_bgColor");
- const savedBtnColor = localStorage.getItem("ideaApp_btnColor");
- if (savedBgColor) {
-   document.body.style.backgroundColor = savedBgColor;
-   bgColorPicker.value = savedBgColor;
- }
- if (savedBtnColor) {
-   applyButtonColor(savedBtnColor);
-   btnColorPicker.value = savedBtnColor;
- }
+// ---------------- Customization ----------------
+// Namespaced localStorage keys per signed-in user (so themes don't leak across accounts)
+function getThemeKey(name){
+  const uid = (typeof auth !== 'undefined' && auth?.currentUser?.uid) ? auth.currentUser.uid : 'guest';
+  return `ideaApp_${name}_${uid}`;
+}
+
+// Load saved colors for guest (will be overridden on sign-in with profile theme)
+const savedBgColor = localStorage.getItem(getThemeKey("bgColor"));
+const savedBtnColor = localStorage.getItem(getThemeKey("btnColor"));
+if (savedBgColor) {
+  document.body.style.backgroundColor = savedBgColor;
+  if (bgColorPicker) bgColorPicker.value = savedBgColor;
+}
+if (savedBtnColor) {
+  applyButtonColor(savedBtnColor);
+  if (btnColorPicker) btnColorPicker.value = savedBtnColor;
+}
 
  function applyButtonColor(val) {
    document.documentElement.style.setProperty("--accent", val);
@@ -364,17 +454,23 @@ const followingStat = document.getElementById("followingStat");
    document.documentElement.style.setProperty("--shadow-color", hexToRgba(val, 0.3));
  }
 
- bgColorPicker.addEventListener("input", e => { 
-   const color = e.target.value;
-   document.body.style.backgroundColor = color;
-   localStorage.setItem("ideaApp_bgColor", color);
- });
+bgColorPicker.addEventListener("input", async e => { 
+  const color = e.target.value;
+  document.body.style.backgroundColor = color;
+  localStorage.setItem(getThemeKey("bgColor"), color);
+  if (auth.currentUser) {
+    try { await updateDoc(doc(db, "profiles", auth.currentUser.uid), { themeBgColor: color }); await refreshCurrentUserProfile(); } catch (err) { console.error("Error saving bg color:", err); }
+  }
+});
 
- btnColorPicker.addEventListener("input", e => {
-   const val = e.target.value;
-   applyButtonColor(val);
-   localStorage.setItem("ideaApp_btnColor", val);
- });
+btnColorPicker.addEventListener("input", async e => {
+  const val = e.target.value;
+  applyButtonColor(val);
+  localStorage.setItem(getThemeKey("btnColor"), val);
+  if (auth.currentUser) {
+    try { await updateDoc(doc(db, "profiles", auth.currentUser.uid), { themeBtnColor: val }); await refreshCurrentUserProfile(); } catch (err) { console.error("Error saving btn color:", err); }
+  }
+});
 function shadeColor(color, percent) {
   let R = parseInt(color.substring(1,3),16), G = parseInt(color.substring(3,5),16), B = parseInt(color.substring(5,7),16);
   R = Math.min(255, Math.max(0, parseInt(R*(100+percent)/100)));
@@ -407,6 +503,10 @@ async function getOrCreateProfile(uid, displayName, photoURL) {
         bio: "",
         followers: [],
         following: [],
+        savedPosts: [],
+        themeBgColor: localStorage.getItem("ideaApp_bgColor") || document.body.style.backgroundColor || "#f9fafb",
+        themeBtnColor: localStorage.getItem("ideaApp_btnColor") || getComputedStyle(document.documentElement).getPropertyValue("--button-bg")?.trim() || "#4f46e5",
+        handle: ("user_" + uid.slice(-6)),
         createdAt: serverTimestamp()
       });
     } catch (err) {
@@ -417,11 +517,16 @@ async function getOrCreateProfile(uid, displayName, photoURL) {
       throw err;
     }
   } else {
+    // Do NOT overwrite user's chosen displayName/photo on every sign-in.
+    // Only backfill if missing.
     try {
-      await updateDoc(profileRef, {
-        displayName,
-        photoURL
-      });
+      const existing = profileSnap.data();
+      const updates = {};
+      if (!existing.displayName && displayName) updates.displayName = displayName;
+      if (!existing.photoURL && photoURL) updates.photoURL = photoURL;
+      if (Object.keys(updates).length > 0) {
+        await updateDoc(profileRef, updates);
+      }
     } catch (err) {
       if (err.code === 'permission-denied') {
         console.error("Permission denied updating profile:", err);
@@ -431,7 +536,14 @@ async function getOrCreateProfile(uid, displayName, photoURL) {
     }
   }
   const updatedSnap = await getDoc(profileRef);
-  return updatedSnap.data();
+  // Backfill handle if missing
+  const data = updatedSnap.data();
+  if (data && !data.handle) {
+    try { await updateDoc(profileRef, { handle: ("user_" + uid.slice(-6)) }); } catch (e) {}
+    const resnap = await getDoc(profileRef);
+    return resnap.data();
+  }
+  return data;
 }
 
 async function followUser(targetUid) {
@@ -581,9 +693,10 @@ async function loadFollowersList(uid, type) {
       });
       
       const avatar = document.createElement("img");
-      avatar.src = userProfile.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(userProfile.displayName || "User") + "&background=4f46e5&color=fff";
+      avatar.src = getAvatarSrcFromProfile(userProfile) || ("https://ui-avatars.com/api/?name=" + encodeURIComponent(userProfile.displayName || "User") + "&background=4f46e5&color=fff");
       avatar.alt = userProfile.displayName || "User";
       avatar.onerror = () => { avatar.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(userProfile.displayName || "User") + "&background=4f46e5&color=fff"; };
+      applyFrameClass(avatar, userProfile);
       
       const info = document.createElement("div");
       info.className = "follower-item-info";
@@ -713,8 +826,27 @@ async function loadProfile(uid) {
       existingBadge.remove();
     }
     
-    document.getElementById("profileAvatar").src = profile.photoURL || "https://www.gravatar.com/avatar?d=mp&f=y";
+    const profileAvatarEl = document.getElementById("profileAvatar");
+    profileAvatarEl.src = getAvatarSrcFromProfile(profile);
+    applyFrameClass(profileAvatarEl, profile);
+    profileAvatarEl.onerror = () => { profileAvatarEl.src = "https://www.gravatar.com/avatar?d=mp&f=y"; };
     document.getElementById("profileBio").textContent = profile.bio || "No bio yet.";
+    // Show immutable handle under name
+    const handleElId = "profileHandleInline";
+    const existingHandle = document.getElementById(handleElId);
+    const handleText = profile.handle ? ("@" + profile.handle) : ("@user_" + (profile.uid || "").slice(-6));
+    if (!existingHandle) {
+      const handleEl = document.createElement("div");
+      handleEl.id = handleElId;
+      handleEl.style.color = "var(--text-secondary)";
+      handleEl.style.marginTop = "-0.25rem";
+      handleEl.style.marginBottom = "0.5rem";
+      handleEl.style.fontSize = "0.9rem";
+      handleEl.textContent = handleText;
+      document.querySelector(".profile-info .profile-name").insertAdjacentElement("afterend", handleEl);
+    } else {
+      existingHandle.textContent = handleText;
+    }
     document.getElementById("profileIdeasCount").textContent = userIdeas.length;
     document.getElementById("profileFollowersCount").textContent = (profile.followers || []).length;
     document.getElementById("profileFollowingCount").textContent = (profile.following || []).length;
@@ -730,6 +862,46 @@ async function loadProfile(uid) {
         document.getElementById("profileView").style.display = "none";
         profileEdit.style.display = "block";
         profileBioEdit.value = profile.bio || "";
+        if (profileDisplayNameEdit) profileDisplayNameEdit.value = profile.displayName || "";
+        // Render presets
+        if (presetAvatarPicker) {
+          presetAvatarPicker.innerHTML = "";
+          PRESET_AVATARS.forEach(url => {
+            const btn = document.createElement("button");
+            btn.style.padding = 0; btn.style.border = "2px solid transparent"; btn.style.borderRadius = "50%"; btn.style.overflow = "hidden"; btn.style.width = "40px"; btn.style.height = "40px";
+            const img = document.createElement("img"); img.src = url; img.style.width = "40px"; img.style.height = "40px"; img.style.objectFit = "cover"; img.alt = "preset";
+            btn.appendChild(img);
+            btn.addEventListener("click", () => {
+              selectedAvatarPreset = url;
+              // Visual selection
+              Array.from(presetAvatarPicker.children).forEach(c => c.style.borderColor = "transparent");
+              btn.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue("--primary");
+            });
+            presetAvatarPicker.appendChild(btn);
+          });
+          // Preselect existing preset if any
+          selectedAvatarPreset = profile.avatarPreset || null;
+          if (selectedAvatarPreset) {
+            Array.from(presetAvatarPicker.children).forEach(c => { const img=c.querySelector('img'); if (img && img.src===selectedAvatarPreset) c.style.borderColor=getComputedStyle(document.documentElement).getPropertyValue("--primary"); });
+          }
+        }
+        if (presetFramePicker) {
+          presetFramePicker.innerHTML = "";
+          PRESET_FRAMES.forEach(fr => {
+            const btn = document.createElement("button");
+            btn.className = fr.className;
+            btn.style.width = "48px"; btn.style.height = "48px"; btn.style.borderRadius = "50%"; btn.style.position = "relative"; btn.style.background = "#e5e7eb"; btn.style.border = "2px solid transparent";
+            const dot = document.createElement("div"); dot.style.width = "100%"; dot.style.height = "100%"; dot.style.borderRadius = "50%"; dot.style.background = "#fff"; btn.appendChild(dot);
+            btn.title = fr.label;
+            btn.addEventListener("click", () => {
+              selectedFramePreset = fr.key;
+              Array.from(presetFramePicker.children).forEach(c => c.style.borderColor = "transparent");
+              btn.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue("--primary");
+            });
+            presetFramePicker.appendChild(btn);
+          });
+          selectedFramePreset = profile.framePreset || "none";
+        }
       };
       actionsDiv.appendChild(editBtn);
     } else if (auth.currentUser) {
@@ -791,6 +963,17 @@ async function refreshCurrentUserProfile() {
       if (profileSnap.exists()) {
         currentUserProfile = profileSnap.data();
       }
+      if (currentUserProfile) {
+        if (currentUserProfile.themeBgColor) {
+          document.body.style.backgroundColor = currentUserProfile.themeBgColor;
+          if (bgColorPicker) bgColorPicker.value = currentUserProfile.themeBgColor;
+        }
+        if (currentUserProfile.themeBtnColor) {
+          applyButtonColor(currentUserProfile.themeBtnColor);
+          if (btnColorPicker) btnColorPicker.value = currentUserProfile.themeBtnColor;
+        }
+        if (navSaved) navSaved.style.display = "inline-block";
+      }
     } catch (err) {
       console.error("Error refreshing profile:", err);
     }
@@ -815,11 +998,22 @@ profileModal.addEventListener("click", (e) => {
 saveProfileBtn.addEventListener("click", async () => {
   if (!auth.currentUser) return;
   try {
-    const bio = profileBioEdit.value.trim();
-    await updateDoc(doc(db, "profiles", auth.currentUser.uid), { bio });
+    const updates = {};
+    const bio = (profileBioEdit?.value || "").trim();
+    updates.bio = bio;
+    const displayName = (profileDisplayNameEdit?.value || "").trim();
+    if (displayName) updates.displayName = displayName;
+    if (selectedAvatarPreset) updates.avatarPreset = selectedAvatarPreset;
+    if (selectedFramePreset !== null) updates.framePreset = selectedFramePreset;
+
+    await updateDoc(doc(db, "profiles", auth.currentUser.uid), updates);
     profileEdit.style.display = "none";
     document.getElementById("profileView").style.display = "block";
+    await refreshCurrentUserProfile();
     await loadProfile(auth.currentUser.uid);
+    // Re-render ideas lists so author/avatar reflect new profile
+    const savedActive = document.getElementById("navSaved")?.classList.contains("active");
+    if (savedActive) renderSavedIdeas(); else renderAllIdeas();
   } catch (err) {
     alert("Error saving profile: " + err.message);
   }
@@ -858,9 +1052,12 @@ navIdeas.addEventListener("click", () => {
   console.log("Ideas nav clicked");
   navIdeas.classList.add("active");
   navProfile.classList.remove("active");
+  if (navSaved) navSaved.classList.remove("active");
+  if (navLeaderboard) navLeaderboard.classList.remove("active");
   document.getElementById("sortOptions").style.display = "block";
   document.getElementById("ideasList").style.display = "flex";
   profileModal.classList.remove("active");
+  renderAllIdeas();
 });
 
 navProfile.addEventListener("click", async () => {
@@ -871,11 +1068,45 @@ navProfile.addEventListener("click", async () => {
   }
   navIdeas.classList.remove("active");
   navProfile.classList.add("active");
+  if (navSaved) navSaved.classList.remove("active");
+  if (navLeaderboard) navLeaderboard.classList.remove("active");
   document.getElementById("sortOptions").style.display = "none";
   document.getElementById("ideasList").style.display = "none";
   console.log("Loading profile for user:", auth.currentUser.uid);
   await loadProfile(auth.currentUser.uid);
 });
+
+// Saved tab handler
+if (navSaved) {
+  navSaved.addEventListener("click", () => {
+    if (!auth.currentUser) {
+      alert("Please sign in to view saved posts");
+      return;
+    }
+    navIdeas.classList.remove("active");
+    navProfile.classList.remove("active");
+    navSaved.classList.add("active");
+    if (navLeaderboard) navLeaderboard.classList.remove("active");
+    document.getElementById("sortOptions").style.display = "none";
+    document.getElementById("ideasList").style.display = "flex";
+    profileModal.classList.remove("active");
+    renderSavedIdeas();
+  });
+}
+
+// Leaderboard tab handler
+if (navLeaderboard) {
+  navLeaderboard.addEventListener("click", () => {
+    navIdeas.classList.remove("active");
+    navProfile.classList.remove("active");
+    if (navSaved) navSaved.classList.remove("active");
+    navLeaderboard.classList.add("active");
+    document.getElementById("sortOptions").style.display = "none";
+    document.getElementById("ideasList").style.display = "flex";
+    profileModal.classList.remove("active");
+    renderLeaderboard();
+  });
+}
 
 // ---------------- Auth ----------------
 signInBtn.addEventListener("click", async ()=>{ 
@@ -898,7 +1129,7 @@ signOutBtn.addEventListener("click", async ()=>{
 onAuthStateChanged(auth, async user=>{
   if(user){
     signInBtn.style.display="none"; 
-    signOutBtn.style.display="inline-block"; 
+    if (topBar) topBar.style.display = "flex";
     ideaForm.style.display="block"; 
     navBar.style.display="flex";
     isAdmin = (user.uid === ADMIN_UID);
@@ -906,16 +1137,35 @@ onAuthStateChanged(auth, async user=>{
     adminUidBadge.textContent = "UID: "+user.uid;
     await getOrCreateProfile(user.uid, user.displayName, user.photoURL);
     await refreshCurrentUserProfile();
+    // Persist current theme to per-user localStorage keys
+    if (currentUserProfile) {
+      if (currentUserProfile.themeBgColor) {
+        localStorage.setItem(getThemeKey("bgColor"), currentUserProfile.themeBgColor);
+      }
+      if (currentUserProfile.themeBtnColor) {
+        localStorage.setItem(getThemeKey("btnColor"), currentUserProfile.themeBtnColor);
+      }
+    }
+    if (navSaved) navSaved.style.display = "inline-block";
+    const ideasDiv = document.getElementById("ideasList");
+    if (ideasDiv) ideasDiv.style.display = "flex";
     renderAllIdeas();
   } else {
     signInBtn.style.display="inline-block"; 
-    signOutBtn.style.display="none"; 
+    if (topBar) topBar.style.display = "none";
     ideaForm.style.display="none"; 
     navBar.style.display="none";
     isAdmin=false; 
     adminPanel.style.display="none";
     currentUserProfile = null;
-    renderAllIdeas();
+    if (navSaved) navSaved.style.display = "none";
+    // Reset theme to defaults on sign-out so themes don't leak across users
+    document.body.style.backgroundColor = "#f9fafb";
+    if (bgColorPicker) bgColorPicker.value = "#f9fafb";
+    applyButtonColor("#4f46e5");
+    if (btnColorPicker) btnColorPicker.value = "#4f46e5";
+    const ideasDiv = document.getElementById("ideasList");
+    if (ideasDiv) { ideasDiv.innerHTML = ""; ideasDiv.style.display = "none"; }
   }
 });
 
@@ -938,10 +1188,12 @@ if (postBtn) {
     const title = ideaTitle.value.trim(), desc = ideaDesc.value.trim();
     if(!title || !desc) return alert("Fill out both fields!");
     try{
+      const authorName = (currentUserProfile?.displayName) || auth.currentUser.displayName;
+      const authorAvatar = (currentUserProfile?.photoURL) || auth.currentUser.photoURL;
       await addDoc(collection(db,"ideas"),{
         title, description: desc,
-        author: auth.currentUser.displayName,
-        avatar: auth.currentUser.photoURL,
+        author: authorName,
+        avatar: authorAvatar,
         uid: auth.currentUser.uid,
         reactions:{}, comments:[], created:new Date()
       });
@@ -954,6 +1206,7 @@ if (postBtn) {
 const ideasQuery = query(collection(db,"ideas"), orderBy("created","desc"));
 let allIdeas = [];
 let currentReactionMenu = null;
+let profilesCache = new Map();
 
 onSnapshot(ideasQuery, snapshot=>{
   allIdeas = snapshot.docs.map(d=>({ id:d.id, ...d.data() }));
@@ -961,6 +1214,18 @@ onSnapshot(ideasQuery, snapshot=>{
 }, err => {
   console.error("Error listening to ideas:", err);
 });
+
+// Listen to profiles to keep names/avatars fresh
+onSnapshot(collection(db, "profiles"), snap => {
+  profilesCache = new Map();
+  snap.docs.forEach(d => { const p = d.data(); if (p && (p.uid || d.id)) { profilesCache.set(p.uid || d.id, p); } });
+  // Re-render if we are on ideas or saved tab so names/avatars update live
+  const savedActive = document.getElementById("navSaved")?.classList.contains("active");
+  const profileActive = document.getElementById("navProfile")?.classList.contains("active");
+  if (!profileActive) {
+    if (savedActive) renderSavedIdeas(); else renderAllIdeas();
+  }
+}, err => { console.error("Error listening to profiles:", err); });
 
 const sortSelect = document.getElementById("sortSelect");
 if (sortSelect) {
@@ -991,6 +1256,124 @@ function renderAllIdeas(){
   }
 }
 
+function renderSavedIdeas(){
+  if (!ideasList) return;
+  const saved = (currentUserProfile?.savedPosts)||[];
+  const savedSet = new Set(Array.isArray(saved)?saved:[]);
+  const savedIdeas = allIdeas.filter(i=>savedSet.has(i.id));
+  ideasList.innerHTML = "";
+  if (savedIdeas.length === 0) {
+    const empty = document.createElement("div");
+    empty.style.color = "var(--text-secondary)";
+    empty.style.textAlign = "center";
+    empty.style.padding = "2rem";
+    empty.textContent = "No saved posts yet.";
+    ideasList.appendChild(empty);
+    return;
+  }
+  savedIdeas.forEach(renderIdea);
+}
+
+// ---------------- Leaderboard ----------------
+async function renderLeaderboard(){
+  if (!ideasList) return;
+  ideasList.innerHTML = "";
+  try {
+    // Build post and reaction counts from current idea snapshot
+    const postCounts = new Map(); // uid -> count
+    const reactionCounts = new Map(); // uid -> total reactions across their posts
+    allIdeas.forEach(idea => {
+      const uid = idea.uid;
+      if (!uid) return;
+      postCounts.set(uid, (postCounts.get(uid)||0) + 1);
+      const reactions = getTotalReactions(idea.reactions);
+      reactionCounts.set(uid, (reactionCounts.get(uid)||0) + reactions);
+    });
+
+    // Fetch profiles for names/avatars and follower counts
+    const profilesSnap = await getDocs(collection(db, "profiles"));
+    const profiles = profilesSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const followerCounts = new Map(); // uid -> followers length
+    const uidToProfile = new Map();
+    profiles.forEach(p => {
+      followerCounts.set(p.uid || p.id, Array.isArray(p.followers) ? p.followers.length : 0);
+      uidToProfile.set(p.uid || p.id, p);
+    });
+
+    // Helpers to create sections
+    const container = document.createElement("div");
+    container.style.display = "flex";
+    container.style.flexDirection = "column";
+    container.style.gap = "1rem";
+
+    function createSection(title, rows){
+      const section = document.createElement("div");
+      section.className = "card";
+      const h = document.createElement("h3"); h.textContent = title; section.appendChild(h);
+      const list = document.createElement("div");
+      rows.slice(0,5).forEach((row, idx) => {
+        const item = document.createElement("div");
+        item.style.display = "flex";
+        item.style.alignItems = "center";
+        item.style.justifyContent = "space-between";
+        item.style.padding = ".5rem 0";
+
+        const left = document.createElement("div");
+        left.style.display = "flex";
+        left.style.alignItems = "center";
+        left.style.gap = ".6rem";
+        const rank = document.createElement("span"); rank.textContent = String(idx+1) + "."; rank.style.minWidth = "1.5rem";
+        const avatar = document.createElement("img"); avatar.style.width = "28px"; avatar.style.height = "28px"; avatar.style.borderRadius = "50%"; avatar.style.cursor = "pointer";
+        avatar.src = getAvatarSrcFromProfile(row);
+        avatar.alt = (row.displayName||"User") + " avatar";
+        avatar.addEventListener("click", () => { if (row.uid) loadProfile(row.uid); });
+        applyFrameClass(avatar, row);
+        const name = document.createElement("span"); name.textContent = row.displayName || "User"; name.style.cursor = "pointer"; name.addEventListener("click", () => { if (row.uid) loadProfile(row.uid); });
+        left.appendChild(rank); left.appendChild(avatar); left.appendChild(name);
+
+        const right = document.createElement("div");
+        right.style.fontWeight = "700";
+        right.textContent = row.valueLabel;
+
+        item.appendChild(left); item.appendChild(right);
+        list.appendChild(item);
+      });
+      section.appendChild(list);
+      return section;
+    }
+
+    // Build rows
+    function topFromMap(countMap, label, valueSuffix){
+      const rows = Array.from(countMap.entries())
+        .sort((a,b)=>b[1]-a[1])
+        .map(([uid, value]) => {
+          const p = uidToProfile.get(uid) || { uid, displayName: "User", photoURL: "", avatarPreset: null, framePreset: null };
+          return { uid, displayName: p.displayName || "User", photoURL: p.photoURL || "", avatarPreset: p.avatarPreset || null, framePreset: p.framePreset || null, value, valueLabel: `${value} ${valueSuffix}` };
+        })
+        .slice(0,5);
+      return rows;
+    }
+
+    const postsRows = topFromMap(postCounts, "Most Posts", "posts");
+    const reactionsRows = topFromMap(reactionCounts, "Most Reactions", "reactions");
+    const followersRows = topFromMap(followerCounts, "Most Followers", "followers");
+
+    container.appendChild(createSection("Most Posts", postsRows));
+    container.appendChild(createSection("Most Reactions", reactionsRows));
+    container.appendChild(createSection("Most Followers", followersRows));
+
+    ideasList.appendChild(container);
+  } catch (err) {
+    console.error("Error rendering leaderboard:", err);
+    const error = document.createElement("div");
+    error.style.color = "#dc2626";
+    error.style.textAlign = "center";
+    error.style.padding = "2rem";
+    error.textContent = "Error loading leaderboard: " + (err.message || "Unknown error");
+    ideasList.appendChild(error);
+  }
+}
+
 // ---------------- Render Single Idea ----------------
 function renderIdea(idea){
   const card = document.createElement("article"); 
@@ -1008,10 +1391,13 @@ function renderIdea(idea){
   const authorDiv = document.createElement("div"); 
   authorDiv.className="author";
   
+  const profileForIdea = idea.uid ? (profilesCache.get(idea.uid) || null) : null;
   const avatar = document.createElement("img"); 
-  avatar.src = idea.avatar||"https://www.gravatar.com/avatar?d=mp&f=y"; 
+  const avatarSrc = (profileForIdea ? getAvatarSrcFromProfile(profileForIdea) : (idea.avatar || "https://www.gravatar.com/avatar?d=mp&f=y"));
+  avatar.src = avatarSrc; 
   avatar.alt=(idea.author||"Anonymous")+" avatar";
   avatar.style.cursor = "pointer";
+  applyFrameClass(avatar, profileForIdea);
   // CRITICAL FIX - Make avatar clickable
   avatar.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -1025,7 +1411,7 @@ function renderIdea(idea){
   authorDiv.appendChild(avatar);
   
   const authorName = document.createElement("span");
-  authorName.textContent = idea.author||"Anonymous";
+  authorName.textContent = (profileForIdea?.displayName) || idea.author || "Anonymous";
   authorName.style.cursor = "pointer";
   // CRITICAL FIX - Make username clickable
   authorName.addEventListener("click", (e) => {
@@ -1058,23 +1444,59 @@ function renderIdea(idea){
   reactBtn.textContent="♥ "+getTotalReactions(idea.reactions); 
   card.appendChild(reactBtn);
   
+  // Save/Unsave button
+  const savedIds = (currentUserProfile?.savedPosts)||[];
+  const isSaved = Array.isArray(savedIds) && savedIds.includes(idea.id);
+  const saveBtn = document.createElement("button");
+  saveBtn.className = isSaved ? "secondary" : "";
+  saveBtn.style.marginLeft = "0.5rem";
+  saveBtn.textContent = isSaved ? "Saved" : "Save";
+  saveBtn.title = isSaved ? "Remove from Saved" : "Save for later";
+  saveBtn.addEventListener("click", async (e)=>{
+    e.stopPropagation();
+    if (!auth.currentUser) { alert("Sign in to save posts"); return; }
+    try {
+      const ref = doc(db, "profiles", auth.currentUser.uid);
+      if (isSaved) {
+        await updateDoc(ref, { savedPosts: arrayRemove(idea.id) });
+      } else {
+        await updateDoc(ref, { savedPosts: arrayUnion(idea.id) });
+      }
+      await refreshCurrentUserProfile();
+      if (document.getElementById("navSaved")?.classList.contains("active")) {
+        renderSavedIdeas();
+      } else {
+        renderAllIdeas();
+      }
+    } catch (err) {
+      console.error("Error toggling save:", err);
+      alert("Error updating saved posts: " + err.message);
+    }
+  });
+  card.appendChild(saveBtn);
+  
   const reactionMenu = document.createElement("div"); 
   reactionMenu.className="reactionMenu";
   ["❤️","😂","👍","🎉","😮","😢","👎"].forEach(emoji=>{
     const btn=document.createElement("button"); 
     btn.textContent=emoji; 
     btn.title=`React with ${emoji}`;
-    btn.addEventListener("click", e=>{
+    btn.addEventListener("click", async e=>{
       e.stopPropagation();
       if(!auth.currentUser)return alert("Sign in to react!");
       const ref=doc(db,"ideas",idea.id); 
       const userUid=auth.currentUser.uid;
       const arr = idea.reactions?.[emoji]||[]; 
       const hasReacted=arr.includes(userUid);
-      if(hasReacted) {
-        updateDoc(ref,{ [`reactions.${emoji}`]: arrayRemove(userUid) });
-      } else {
-        updateDoc(ref,{ [`reactions.${emoji}`]: arrayUnion(userUid) });
+      try {
+        if(hasReacted) {
+          await updateDoc(ref,{ [`reactions.${emoji}`]: arrayRemove(userUid) });
+        } else {
+          await updateDoc(ref,{ [`reactions.${emoji}`]: arrayUnion(userUid) });
+        }
+      } catch (err) {
+        console.error("Reaction update failed:", err);
+        alert((err && err.message) ? err.message : "Failed to update reaction. Check Firestore rules to allow updating reactions.");
       }
     }); 
     reactionMenu.appendChild(btn);
@@ -1115,8 +1537,11 @@ function renderIdea(idea){
     cmnt.className = "comment";
 
     const img = document.createElement("img");
-    img.src = c.avatar || "https://www.gravatar.com/avatar?d=mp&f=y";
-    img.alt = (c.author || "Anonymous") + " avatar";
+    const commentProfile = c.uid ? (profilesCache.get(c.uid) || null) : null;
+    const commentAvatarSrc = commentProfile ? getAvatarSrcFromProfile(commentProfile) : (c.avatar || "https://www.gravatar.com/avatar?d=mp&f=y");
+    img.src = commentAvatarSrc;
+    img.alt = ((commentProfile?.displayName) || c.author || "Anonymous") + " avatar";
+    applyFrameClass(img, commentProfile);
     img.style.cursor = "pointer";
     img.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -1137,7 +1562,8 @@ function renderIdea(idea){
     nameTime.style.color = "#4b5563";
     nameTime.style.cursor = "pointer";
     const time = c.created ? new Date(c.created).toLocaleString() : "";
-    nameTime.textContent = `${c.author || "Anonymous"} ${time ? "• " + time : ""}`;
+    const displayName = (commentProfile?.displayName) || c.author || "Anonymous";
+    nameTime.textContent = `${displayName} ${time ? "• " + time : ""}`;
     nameTime.addEventListener("click", (e) => {
       e.stopPropagation();
       if (c.uid) {
