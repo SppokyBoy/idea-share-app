@@ -510,7 +510,7 @@ input:focus, textarea:focus { border-color: var(--primary); outline:none; box-sh
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc, arrayUnion, arrayRemove, deleteDoc, getDocs, getDoc, setDoc, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAu2x0HdXxGiLv1Rhjqwv4Lkp2Wooo13L0",
@@ -1438,10 +1438,33 @@ if (navLeaderboard) {
   });
 }
 
+// Helper to detect mobile devices
+function isMobileDevice() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+         (window.innerWidth <= 768 && window.innerHeight <= 1024);
+}
+
 // ---------------- Auth ----------------
+// Handle redirect result (for mobile sign-in)
+getRedirectResult(auth).then(async (result) => {
+  if (result) {
+    // User signed in via redirect
+    await getOrCreateProfile(result.user.uid, result.user.displayName, result.user.photoURL);
+    await refreshCurrentUserProfile();
+  }
+}).catch((error) => {
+  console.error("Redirect sign-in error:", error);
+});
+
 signInBtn.addEventListener("click", async ()=>{ 
   try{ 
-    await signInWithPopup(auth, provider); 
+    if (isMobileDevice()) {
+      // Use redirect on mobile devices
+      await signInWithRedirect(auth, provider);
+    } else {
+      // Use popup on desktop
+      await signInWithPopup(auth, provider); 
+    }
   } catch(e){ 
     alert("Sign-in failed: "+e.message); 
   } 
