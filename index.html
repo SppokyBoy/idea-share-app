@@ -96,7 +96,21 @@ input:focus, textarea:focus { border-color: var(--primary); outline:none; box-sh
 .markdown-body { color: var(--text-primary); line-height:1.5; margin-bottom:1rem; font-weight:500; font-size:1rem; user-select:text; white-space:pre-wrap; }
 
 .reactBtn { margin-bottom:.5rem; font-weight:700; font-size:1.05rem; padding:.45rem .95rem; border-radius:24px; color:white; user-select:none; display:inline-flex; align-items:center; gap:6px; background:var(--button-bg); box-shadow:0 6px 12px var(--button-shadow); border:none; }
-.reactionMenu { position:absolute; bottom:100%; left:0; display:none; gap:8px; padding:.3rem .6rem; border-radius:30px; background:var(--card-bg); box-shadow:0 4px 16px rgba(0,0,0,.15); user-select:none; z-index:1000; white-space:nowrap; flex-wrap:wrap; }
+.reactionMenu { 
+  position:absolute; 
+  bottom:100%; 
+  left:0; 
+  display:none; 
+  gap:8px; 
+  padding:.3rem .6rem; 
+  border-radius:30px; 
+  background:var(--card-bg); 
+  box-shadow:0 4px 16px rgba(0,0,0,.15); 
+  user-select:none; 
+  z-index:2000; 
+  white-space:nowrap; 
+  flex-wrap:wrap;
+}
 .reactionMenu button { background:transparent; border:none; font-size:1.5rem; cursor:pointer; padding:0 6px; transition: transform .15s ease; color:var(--text-primary); }
 .reactionMenu button:hover { transform:scale(1.3); }
 
@@ -271,16 +285,19 @@ input:focus, textarea:focus { border-color: var(--primary); outline:none; box-sh
   .nav-link.active { transform: none; }
   .nav-link::before { display: none; }
   
-  /* Top bar mobile */
+  /* Top bar mobile - make it scrollable content, not fixed */
   #topBar { 
-    top: 8px;
-    right: 8px;
+    position: relative;
+    top: auto;
+    right: auto;
     left: auto;
     padding: 0.5rem;
     flex-direction: column;
     gap: 0.4rem;
-    max-width: 140px;
+    max-width: 100%;
     align-items: flex-start;
+    margin: 0.5rem 0;
+    display: none; /* Hide by default, show when signed in */
   }
   #topBar label { 
     font-size: 0.75rem; 
@@ -320,21 +337,14 @@ input:focus, textarea:focus { border-color: var(--primary); outline:none; box-sh
   #authButtons { flex-direction: column; }
   #authButtons button { width: 100%; font-size: 1.1rem; padding: 0.9rem 1.5rem; }
   
-  /* Reaction menu mobile */
+  /* Reaction menu mobile - will be positioned by JavaScript */
   .reactionMenu { 
-    bottom: auto;
-    top: 100%;
-    left: 0;
-    right: 0;
-    margin-top: 0.5rem;
-    margin-bottom: 0;
-    justify-content: center;
-    padding: 0.7rem;
-    border-radius: 20px;
-    box-shadow: 0 6px 24px rgba(0,0,0,.35);
-    z-index: 1100;
+    z-index: 2000;
     background: var(--card-bg);
     border: 2px solid rgba(79, 70, 229, 0.3);
+    box-shadow: 0 6px 24px rgba(0,0,0,.35);
+    border-radius: 20px;
+    padding: 0.7rem;
   }
   .reactionMenu button {
     font-size: 1.8rem;
@@ -1874,6 +1884,27 @@ function renderIdea(idea){
       currentReactionMenu.style.display="none";
     }
     reactionMenu.style.display = reactionMenu.style.display==="flex"?"none":"flex";
+    
+    // On mobile, position fixed and centered
+    if (window.innerWidth <= 900) {
+      if (reactionMenu.style.display === "flex") {
+        const rect = reactBtn.getBoundingClientRect();
+        reactionMenu.style.position = "fixed";
+        reactionMenu.style.top = (rect.bottom + 10) + "px";
+        reactionMenu.style.left = "50%";
+        reactionMenu.style.transform = "translateX(-50%)";
+        reactionMenu.style.width = "auto";
+        reactionMenu.style.maxWidth = "90vw";
+      }
+    } else {
+      reactionMenu.style.position = "";
+      reactionMenu.style.top = "";
+      reactionMenu.style.left = "";
+      reactionMenu.style.transform = "";
+      reactionMenu.style.width = "";
+      reactionMenu.style.maxWidth = "";
+    }
+    
     currentReactionMenu = reactionMenu.style.display==="flex"?reactionMenu:null;
   });
 
@@ -2061,5 +2092,4 @@ document.addEventListener("click", (e) => {
 </script>
 </body>
 </html>
-
 
