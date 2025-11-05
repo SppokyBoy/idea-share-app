@@ -510,7 +510,7 @@ input:focus, textarea:focus { border-color: var(--primary); outline:none; box-sh
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc, arrayUnion, arrayRemove, deleteDoc, getDocs, getDoc, setDoc, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAu2x0HdXxGiLv1Rhjqwv4Lkp2Wooo13L0",
@@ -527,22 +527,6 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: 'select_account' });
-
-// Handle redirect result immediately on page load (for mobile sign-in)
-// This must be called before onAuthStateChanged
-getRedirectResult(auth).then(async (result) => {
-  if (result && result.user) {
-    // User signed in via redirect - profile will be created/handled by onAuthStateChanged
-    console.log("Redirect sign-in successful for:", result.user.email);
-  }
-}).catch((error) => {
-  // Ignore auth errors that are normal when no redirect pending
-  if (error.code !== 'auth/operation-not-allowed' && 
-      error.code !== 'auth/internal-error' &&
-      !error.message?.includes('No pending')) {
-    console.error("Redirect sign-in error:", error);
-  }
-});
 
 // Avatar helpers
 function getAvatarSrcFromProfile(p){
@@ -1454,28 +1438,12 @@ if (navLeaderboard) {
   });
 }
 
-// Helper to detect mobile devices
-function isMobileDevice() {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
-         (window.innerWidth <= 768 && window.innerHeight <= 1024);
-}
-
 // ---------------- Auth ----------------
 signInBtn.addEventListener("click", async ()=>{ 
   try{ 
-    if (isMobileDevice()) {
-      // Use redirect on mobile devices
-      await signInWithRedirect(auth, provider);
-      // Page will redirect, so code below won't run until redirect completes
-    } else {
-      // Use popup on desktop
-      await signInWithPopup(auth, provider); 
-    }
+    await signInWithPopup(auth, provider); 
   } catch(e){ 
-    // Only show error if it's not a redirect (redirect throws an error but that's expected)
-    if (e.code !== 'auth/redirect-cancelled-by-user' && e.code !== 'auth/redirect-operation-pending') {
-      alert("Sign-in failed: "+e.message); 
-    }
+    alert("Sign-in failed: "+e.message); 
   } 
 });
 
@@ -1490,7 +1458,6 @@ signOutBtn.addEventListener("click", async ()=>{
 });
 
 onAuthStateChanged(auth, async user=>{
-  console.log("Auth state changed:", user ? "User signed in" : "User signed out", user?.uid);
   if(user){
     signInBtn.style.display="none"; 
     if (topBar) topBar.style.display = "flex";
@@ -2072,3 +2039,5 @@ document.addEventListener("click", (e) => {
 </script>
 </body>
 </html>
+
+
