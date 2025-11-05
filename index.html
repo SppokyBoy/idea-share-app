@@ -25,6 +25,44 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 
 #topBar { position:fixed; top:12px; right:16px; display:none; align-items:center; gap:.6rem; z-index:1500; background:linear-gradient(135deg, var(--card-bg) 0%, rgba(255,255,255,0.95) 100%); padding:.5rem .75rem; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.12); border:1px solid rgba(79,70,229,.15); }
 #topBar label { font-weight:600; color:var(--text-secondary); font-size:.9rem; }
 h1 { text-align:center; margin-bottom:1rem; color:var(--button-bg); font-weight:700; font-size:2.4rem; letter-spacing:.05em; user-select:none; cursor:default; text-shadow:0 2px 6px var(--button-shadow); }
+.welcome-screen { 
+  text-align:center; 
+  padding:4rem 2rem; 
+  max-width:700px; 
+  margin:3rem auto;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(255, 255, 255, 0.95) 100%);
+  border-radius:20px;
+  box-shadow: 0 10px 40px rgba(79, 70, 229, 0.15);
+  border: 2px solid rgba(79, 70, 229, 0.1);
+  animation: fadeInUp 0.8s ease;
+}
+.welcome-screen h2 { 
+  font-size:3rem; 
+  font-weight:700; 
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom:1.5rem;
+  letter-spacing: -0.02em;
+}
+.welcome-screen p { 
+  font-size:1.4rem; 
+  color:var(--text-secondary); 
+  line-height:1.8; 
+  margin-bottom:2.5rem;
+  font-weight:500;
+}
+.welcome-screen .welcome-icon {
+  font-size: 5rem;
+  margin-bottom: 1rem;
+  display: block;
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
 
 #adminPanel { display:none; margin:1rem 0 1.5rem 0; padding:.9rem 1rem; border-radius:12px; background:#eef2ff; border:2px dashed var(--primary-dark); box-shadow:0 6px 16px rgba(0,0,0,.06); }
 #adminPanel h3 { margin:0 0 .5rem 0; }
@@ -71,6 +109,7 @@ input:focus, textarea:focus { border-color: var(--primary); outline:none; box-sh
 .comment-author:hover { color: var(--primary); }
 
 #authButtons { display:flex; justify-content:center; gap:1rem; margin-bottom:1rem; }
+#authButtons button { font-size:1.2rem; padding:0.8rem 1.5rem; }
 #customization { display:flex; justify-content:center; gap:1.5rem; margin-bottom:1.2rem; flex-wrap:wrap; font-weight:600; color:var(--text-secondary); }
 #customization input[type="color"] { margin-top:.3rem; width:40px; height:30px; border:none; cursor:pointer; border-radius:6px; box-shadow:0 0 5px rgba(0,0,0,.1); }
 
@@ -98,10 +137,10 @@ input:focus, textarea:focus { border-color: var(--primary); outline:none; box-sh
 .profile-name { font-size:1.5rem; font-weight:700; margin-bottom:.5rem; color:var(--text-primary); display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
 .profile-bio { color:var(--text-secondary); line-height:1.6; margin-bottom:1rem; white-space:pre-wrap; word-wrap:break-word; }
 .profile-stats { display:flex; gap:1.5rem; margin-bottom:1rem; }
-.profile-stat { text-align:center; }
+.profile-stat { text-align:center; transition:transform .2s ease; }
+#followersStat:hover, #followingStat:hover, #profilePageFollowersStat:hover, #profilePageFollowingStat:hover { transform:scale(1.05); }
 .profile-stat-value { font-size:1.2rem; font-weight:700; color:var(--primary-dark); }
  .profile-stat-label { font-size:.85rem; color:var(--text-secondary); }
- .profile-stat:hover { transform:scale(1.05); }
  .profile-actions { display:flex; gap:.5rem; margin-top:.5rem; flex-wrap:wrap; }
  
  /* Followers/Following Modal */
@@ -207,6 +246,12 @@ input:focus, textarea:focus { border-color: var(--primary); outline:none; box-sh
 
 <h1>The Idea App</h1>
 
+<div id="welcomeScreen" class="welcome-screen">
+  <span class="welcome-icon">💡</span>
+  <h2>Welcome to The Idea App</h2>
+  <p>Share your ideas, connect with others, and discover amazing creations.<br>Sign in to get started!</p>
+</div>
+
 <section id="adminPanel">
   <h3>🔒 Admin Panel</h3>
   <div class="adminRow">
@@ -241,7 +286,7 @@ input:focus, textarea:focus { border-color: var(--primary); outline:none; box-sh
   <button id="postIdea">Post Idea</button>
 </div>
 
-<div id="sortOptions" style="margin-bottom:1rem; text-align:center;">
+<div id="sortOptions" style="margin-bottom:1rem; text-align:center; display:none;">
   <label for="sortSelect">Sort by: </label>
   <select id="sortSelect">
     <option value="newest">Newest</option>
@@ -251,6 +296,8 @@ input:focus, textarea:focus { border-color: var(--primary); outline:none; box-sh
 </div>
 
 <div id="ideasList"></div>
+
+<div id="profilePage" style="display:none;"></div>
 
 <!-- Profile Modal -->
 <div id="profileModal">
@@ -263,7 +310,7 @@ input:focus, textarea:focus { border-color: var(--primary); outline:none; box-sh
           <div class="profile-name" id="profileName">Loading...</div>
           <div class="profile-bio" id="profileBio">No bio yet.</div>
           <div class="profile-stats">
-            <div class="profile-stat">
+            <div class="profile-stat" style="cursor:default;">
               <div class="profile-stat-value" id="profileIdeasCount">0</div>
               <div class="profile-stat-label">Ideas</div>
             </div>
@@ -381,6 +428,7 @@ const profileBioEdit = document.getElementById("profileBioEdit");
 const profileDisplayNameEdit = document.getElementById("profileDisplayNameEdit");
 const presetAvatarPicker = document.getElementById("presetAvatarPicker");
 const presetFramePicker = document.getElementById("presetFramePicker");
+const profilePage = document.getElementById("profilePage");
 
 // Preset avatars and frames
 const PRESET_AVATARS = [
@@ -689,7 +737,7 @@ async function loadFollowersList(uid, type) {
       item.className = "follower-item";
       item.addEventListener("click", () => {
         followersModal.classList.remove("active");
-        loadProfile(userProfile.uid);
+        openProfileTab(userProfile.uid);
       });
       
       const avatar = document.createElement("img");
@@ -951,6 +999,130 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+async function renderProfilePage(uid) {
+  try {
+    if (ideaForm) ideaForm.style.display = "none";
+    if (profilePage) { profilePage.style.display = "block"; profilePage.innerHTML = "Loading profile..."; }
+    // Fetch profile and user's ideas
+    const profileRef = doc(db, "profiles", uid);
+    let profileSnap = await getDoc(profileRef);
+    if (!profileSnap.exists()) {
+      profilePage.innerHTML = "<p style='color:var(--text-secondary); text-align:center; padding:2rem;'>Profile not found.</p>";
+      return;
+    }
+    const profile = profileSnap.data();
+    let userIdeas = [];
+    try {
+      const q = query(collection(db, "ideas"), where("uid", "==", uid), orderBy("created", "desc"));
+      const snap = await getDocs(q);
+      userIdeas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (e) {
+      const all = await getDocs(collection(db, "ideas"));
+      userIdeas = all.docs.map(d => ({ id: d.id, ...d.data() })).filter(i => i.uid === uid)
+        .sort((a,b) => (b.created?.toDate ? b.created.toDate() : new Date(b.created)) - (a.created?.toDate ? a.created.toDate() : new Date(a.created)));
+    }
+
+    // Build page
+    const container = document.createElement("div");
+    container.innerHTML = `
+      <div class="profile-header">
+        <img id="profilePageAvatar" class="profile-avatar-large" src="" alt="Profile" />
+        <div class="profile-info">
+          <div class="profile-name">${escapeHtml(profile.displayName || "Anonymous")}</div>
+          <div class="profile-bio">${escapeHtml(profile.bio || "No bio yet.")}</div>
+          <div class="profile-stats">
+            <div class="profile-stat" style="cursor:default;"><div class="profile-stat-value">${userIdeas.length}</div><div class="profile-stat-label">Ideas</div></div>
+            <div class="profile-stat" id="profilePageFollowersStat" style="cursor:pointer; transition:transform .2s;"><div class="profile-stat-value">${(profile.followers||[]).length}</div><div class="profile-stat-label">Followers</div></div>
+            <div class="profile-stat" id="profilePageFollowingStat" style="cursor:pointer; transition:transform .2s;"><div class="profile-stat-value">${(profile.following||[]).length}</div><div class="profile-stat-label">Following</div></div>
+          </div>
+          <div class="profile-actions" id="profilePageActions"></div>
+        </div>
+      </div>
+      <div id="profilePageIdeas"></div>
+    `;
+
+    profilePage.innerHTML = "";
+    profilePage.appendChild(container);
+
+    // Add click handlers for followers/following stats
+    const followersStatEl = document.getElementById("profilePageFollowersStat");
+    const followingStatEl = document.getElementById("profilePageFollowingStat");
+    if (followersStatEl) {
+      followersStatEl.addEventListener("click", () => {
+        viewingProfileUid = uid;
+        loadFollowersList(uid, "followers");
+      });
+      followersStatEl.addEventListener("mouseenter", () => {
+        followersStatEl.style.transform = "scale(1.05)";
+      });
+      followersStatEl.addEventListener("mouseleave", () => {
+        followersStatEl.style.transform = "scale(1)";
+      });
+    }
+    if (followingStatEl) {
+      followingStatEl.addEventListener("click", () => {
+        viewingProfileUid = uid;
+        loadFollowersList(uid, "following");
+      });
+      followingStatEl.addEventListener("mouseenter", () => {
+        followingStatEl.style.transform = "scale(1.05)";
+      });
+      followingStatEl.addEventListener("mouseleave", () => {
+        followingStatEl.style.transform = "scale(1)";
+      });
+    }
+
+    // Apply avatar + frame
+    const avatarEl = document.getElementById("profilePageAvatar");
+    avatarEl.src = getAvatarSrcFromProfile(profile);
+    applyFrameClass(avatarEl, profile);
+    avatarEl.onerror = () => { avatarEl.src = "https://www.gravatar.com/avatar?d=mp&f=y"; };
+
+    // Actions
+    const actionsDiv = document.getElementById("profilePageActions");
+    if (auth.currentUser && uid === auth.currentUser.uid) {
+      const editBtn = document.createElement("button"); editBtn.textContent = "Edit Profile";
+      editBtn.onclick = () => { profileModal.classList.add("active"); document.getElementById("profileView").style.display = "block"; profileEdit.style.display = "none"; loadProfile(uid); };
+      actionsDiv.appendChild(editBtn);
+    } else if (auth.currentUser) {
+      const isFollowing = (currentUserProfile?.following || []).includes(uid);
+      const followBtn = document.createElement("button");
+      followBtn.textContent = isFollowing ? "Following" : "Follow";
+      followBtn.className = isFollowing ? "secondary" : "";
+      followBtn.onclick = async () => { await followUser(uid); await renderProfilePage(uid); };
+      actionsDiv.appendChild(followBtn);
+    }
+
+    // Ideas list
+    const listDiv = document.getElementById("profilePageIdeas");
+    if (!userIdeas.length) {
+      listDiv.innerHTML = "<p style='color:var(--text-secondary); text-align:center; padding:2rem;'>No ideas yet.</p>";
+    } else {
+      userIdeas.forEach(i => {
+        const card = document.createElement("div");
+        card.className = "profile-idea-card";
+        card.innerHTML = `<h4>${escapeHtml(i.title||"")}</h4><div class="markdown-body" style="font-size:0.9rem; margin-bottom:0.5rem;">${markdownToHTML(i.description||"")}</div><div class="idea-time">${formatDate(i.created)}</div>`;
+        listDiv.appendChild(card);
+      });
+    }
+    // Show profile page and hide ideas list
+    if (document.getElementById("ideasList")) document.getElementById("ideasList").style.display = "none";
+    if (document.getElementById("sortOptions")) document.getElementById("sortOptions").style.display = "none";
+  } catch (e) {
+    console.error("Error rendering profile page:", e);
+    if (profilePage) profilePage.innerHTML = `<p style='color:#dc2626; text-align:center; padding:2rem;'>Error loading profile: ${e.message||"Unknown error"}</p>`;
+  }
+}
+
+function openProfileTab(uid){
+  navIdeas.classList.remove("active");
+  navSaved?.classList.remove("active");
+  navLeaderboard?.classList.remove("active");
+  navProfile.classList.add("active");
+  if (ideaForm) ideaForm.style.display = "none";
+  renderProfilePage(uid);
+}
+
 async function refreshCurrentUserProfile() {
   if (auth.currentUser) {
     try {
@@ -1056,6 +1228,8 @@ navIdeas.addEventListener("click", () => {
   if (navLeaderboard) navLeaderboard.classList.remove("active");
   document.getElementById("sortOptions").style.display = "block";
   document.getElementById("ideasList").style.display = "flex";
+  if (profilePage) profilePage.style.display = "none";
+  if (ideaForm) ideaForm.style.display = "block";
   profileModal.classList.remove("active");
   renderAllIdeas();
 });
@@ -1072,8 +1246,10 @@ navProfile.addEventListener("click", async () => {
   if (navLeaderboard) navLeaderboard.classList.remove("active");
   document.getElementById("sortOptions").style.display = "none";
   document.getElementById("ideasList").style.display = "none";
-  console.log("Loading profile for user:", auth.currentUser.uid);
-  await loadProfile(auth.currentUser.uid);
+  if (ideaForm) ideaForm.style.display = "none";
+  if (!auth.currentUser) return;
+  console.log("Loading profile tab for user:", auth.currentUser.uid);
+  await renderProfilePage(auth.currentUser.uid);
 });
 
 // Saved tab handler
@@ -1089,6 +1265,8 @@ if (navSaved) {
     if (navLeaderboard) navLeaderboard.classList.remove("active");
     document.getElementById("sortOptions").style.display = "none";
     document.getElementById("ideasList").style.display = "flex";
+    if (profilePage) profilePage.style.display = "none";
+    if (ideaForm) ideaForm.style.display = "none";
     profileModal.classList.remove("active");
     renderSavedIdeas();
   });
@@ -1103,6 +1281,8 @@ if (navLeaderboard) {
     navLeaderboard.classList.add("active");
     document.getElementById("sortOptions").style.display = "none";
     document.getElementById("ideasList").style.display = "flex";
+  if (profilePage) profilePage.style.display = "none";
+  if (ideaForm) ideaForm.style.display = "none";
     profileModal.classList.remove("active");
     renderLeaderboard();
   });
@@ -1121,6 +1301,7 @@ signOutBtn.addEventListener("click", async ()=>{
   try{ 
     await signOut(auth); 
     profileModal.classList.remove("active");
+    if (profilePage) profilePage.style.display = "none";
   } catch(e){ 
     alert("Sign-out failed: "+e.message); 
   } 
@@ -1132,6 +1313,9 @@ onAuthStateChanged(auth, async user=>{
     if (topBar) topBar.style.display = "flex";
     ideaForm.style.display="block"; 
     navBar.style.display="flex";
+    // Hide welcome screen when signed in
+    const welcomeScreen = document.getElementById("welcomeScreen");
+    if (welcomeScreen) welcomeScreen.style.display = "none";
     isAdmin = (user.uid === ADMIN_UID);
     adminPanel.style.display = isAdmin ? "block":"none";
     adminUidBadge.textContent = "UID: "+user.uid;
@@ -1159,6 +1343,11 @@ onAuthStateChanged(auth, async user=>{
     adminPanel.style.display="none";
     currentUserProfile = null;
     if (navSaved) navSaved.style.display = "none";
+    // Show welcome screen and hide sort options
+    const welcomeScreen = document.getElementById("welcomeScreen");
+    if (welcomeScreen) welcomeScreen.style.display = "block";
+    const sortOptions = document.getElementById("sortOptions");
+    if (sortOptions) sortOptions.style.display = "none";
     // Reset theme to defaults on sign-out so themes don't leak across users
     document.body.style.backgroundColor = "#f9fafb";
     if (bgColorPicker) bgColorPicker.value = "#f9fafb";
@@ -1403,7 +1592,7 @@ function renderIdea(idea){
     e.stopPropagation();
     console.log("Avatar clicked for UID:", idea.uid);
     if (idea.uid) {
-      loadProfile(idea.uid);
+      openProfileTab(idea.uid);
     } else {
       alert("No user ID available");
     }
@@ -1418,7 +1607,7 @@ function renderIdea(idea){
     e.stopPropagation();
     console.log("Username clicked for UID:", idea.uid);
     if (idea.uid) {
-      loadProfile(idea.uid);
+      openProfileTab(idea.uid);
     } else {
       alert("No user ID available");
     }
@@ -1546,7 +1735,7 @@ function renderIdea(idea){
     img.addEventListener("click", (e) => {
       e.stopPropagation();
       if (c.uid) {
-        loadProfile(c.uid);
+        openProfileTab(c.uid);
       }
     });
     cmnt.appendChild(img);
@@ -1567,7 +1756,7 @@ function renderIdea(idea){
     nameTime.addEventListener("click", (e) => {
       e.stopPropagation();
       if (c.uid) {
-        loadProfile(c.uid);
+        openProfileTab(c.uid);
       }
     });
     textContainer.appendChild(nameTime);
@@ -1696,4 +1885,3 @@ document.addEventListener("click", (e) => {
 </script>
 </body>
 </html>
-
