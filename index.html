@@ -528,6 +528,22 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: 'select_account' });
 
+// Handle redirect result immediately on page load (for mobile sign-in)
+// This must be called before onAuthStateChanged
+getRedirectResult(auth).then(async (result) => {
+  if (result && result.user) {
+    // User signed in via redirect - profile will be created/handled by onAuthStateChanged
+    console.log("Redirect sign-in successful for:", result.user.email);
+  }
+}).catch((error) => {
+  // Ignore auth errors that are normal when no redirect pending
+  if (error.code !== 'auth/operation-not-allowed' && 
+      error.code !== 'auth/internal-error' &&
+      !error.message?.includes('No pending')) {
+    console.error("Redirect sign-in error:", error);
+  }
+});
+
 // Avatar helpers
 function getAvatarSrcFromProfile(p){
   return (p?.avatarPreset) || (p?.photoURL) || "https://www.gravatar.com/avatar?d=mp&f=y";
@@ -1445,28 +1461,21 @@ function isMobileDevice() {
 }
 
 // ---------------- Auth ----------------
-// Handle redirect result (for mobile sign-in)
-getRedirectResult(auth).then(async (result) => {
-  if (result) {
-    // User signed in via redirect
-    await getOrCreateProfile(result.user.uid, result.user.displayName, result.user.photoURL);
-    await refreshCurrentUserProfile();
-  }
-}).catch((error) => {
-  console.error("Redirect sign-in error:", error);
-});
-
 signInBtn.addEventListener("click", async ()=>{ 
   try{ 
     if (isMobileDevice()) {
       // Use redirect on mobile devices
       await signInWithRedirect(auth, provider);
+      // Page will redirect, so code below won't run until redirect completes
     } else {
       // Use popup on desktop
       await signInWithPopup(auth, provider); 
     }
   } catch(e){ 
-    alert("Sign-in failed: "+e.message); 
+    // Only show error if it's not a redirect (redirect throws an error but that's expected)
+    if (e.code !== 'auth/redirect-cancelled-by-user' && e.code !== 'auth/redirect-operation-pending') {
+      alert("Sign-in failed: "+e.message); 
+    }
   } 
 });
 
@@ -1481,6 +1490,7 @@ signOutBtn.addEventListener("click", async ()=>{
 });
 
 onAuthStateChanged(auth, async user=>{
+  console.log("Auth state changed:", user ? "User signed in" : "User signed out", user?.uid);
   if(user){
     signInBtn.style.display="none"; 
     if (topBar) topBar.style.display = "flex";
@@ -1492,8 +1502,12 @@ onAuthStateChanged(auth, async user=>{
     isAdmin = (user.uid === ADMIN_UID);
     adminPanel.style.display = isAdmin ? "block":"none";
     adminUidBadge.textContent = "UID: "+user.uid;
-    await getOrCreateProfile(user.uid, user.displayName, user.photoURL);
-    await refreshCurrentUserProfile();
+    try {
+      await getOrCreateProfile(user.uid, user.displayName, user.photoURL);
+      await refreshCurrentUserProfile();
+    } catch (err) {
+      console.error("Error in auth state change:", err);
+    }
     // Persist current theme to per-user localStorage keys
     if (currentUserProfile) {
       if (currentUserProfile.themeBgColor) {
@@ -2058,4 +2072,3 @@ document.addEventListener("click", (e) => {
 </script>
 </body>
 </html>
-
